@@ -274,105 +274,125 @@ $videos = $videos_stmt->fetchAll();
         <div class="container">
             <h2 class="section-title animated-title">🎥 Product Demo Videos</h2>
             <div class="videos-grid">
-                <!-- Sample Video 1 -->
-                <div class="video-card">
-                    <div class="video-thumbnail">
-                        <video poster="https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=400">
-                            <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4" type="video/mp4">
-                        </video>
-                        <div class="play-overlay">
-                            <button class="play-btn" onclick="playVideo(this)">
-                                <i class="fas fa-play"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h4>Dashboard Camera Installation Guide</h4>
-                        <p>Complete step-by-step installation process for dashboard cameras</p>
-                    </div>
-                </div>
-                
-                <!-- Sample Video 2 -->
-                <div class="video-card">
-                    <div class="video-thumbnail">
-                        <video poster="https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=400">
-                            <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4" type="video/mp4">
-                        </video>
-                        <div class="play-overlay">
-                            <button class="play-btn" onclick="playVideo(this)">
-                                <i class="fas fa-play"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h4>LED Headlight Upgrade Tutorial</h4>
-                        <p>How to upgrade your car headlights to LED technology</p>
-                    </div>
-                </div>
-                
-                <!-- Sample Video 3 -->
-                <div class="video-card">
-                    <div class="video-thumbnail">
-                        <video poster="https://images.pexels.com/photos/35967/mini-cooper-auto-model-vehicle.jpg?auto=compress&cs=tinysrgb&w=400">
-                            <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_640x360_1mb.mp4" type="video/mp4">
-                        </video>
-                        <div class="play-overlay">
-                            <button class="play-btn" onclick="playVideo(this)">
-                                <i class="fas fa-play"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h4>Car Air Purifier Setup</h4>
-                        <p>Installing and configuring your car air purification system</p>
-                    </div>
-                </div>
-                
-                <!-- Sample Video 4 -->
-                <div class="video-card">
-                    <div class="video-thumbnail">
-                        <video poster="https://images.pexels.com/photos/244206/pexels-photo-244206.jpeg?auto=compress&cs=tinysrgb&w=400">
-                            <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4" type="video/mp4">
-                        </video>
-                        <div class="play-overlay">
-                            <button class="play-btn" onclick="playVideo(this)">
-                                <i class="fas fa-play"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h4>Wireless Charger Installation</h4>
-                        <p>Setting up wireless charging pad in your vehicle</p>
-                    </div>
-                </div>
-                
-                <!-- Sample Video 5 -->
-                <div class="video-card">
-                    <div class="video-thumbnail">
-                        <video poster="https://images.pexels.com/photos/305070/pexels-photo-305070.jpeg?auto=compress&cs=tinysrgb&w=400">
-                            <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_360x240_1mb.mp4" type="video/mp4">
-                        </video>
-                        <div class="play-overlay">
-                            <button class="play-btn" onclick="playVideo(this)">
-                                <i class="fas fa-play"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h4>Backup Camera System Setup</h4>
-                        <p>Complete guide to installing backup camera with LCD display</p>
-                    </div>
-                </div>
-                
                 <?php if(!empty($videos)): ?>
                     <?php foreach($videos as $video): ?>
+                        <?php
+                            $video_url = $video['video_path'];
+                            $embed_url = '';
+                            $video_type = 'unknown';
+                            
+                            // Check if it's a YouTube URL
+                            if (strpos($video_url, 'youtube.com') !== false || strpos($video_url, 'youtu.be') !== false) {
+                                $video_type = 'youtube';
+                                if (strpos($video_url, 'watch?v=') !== false) {
+                                    parse_str(parse_url($video_url, PHP_URL_QUERY), $params);
+                                    $video_id = $params['v'] ?? '';
+                                } elseif (strpos($video_url, 'youtu.be/') !== false) {
+                                    $video_id = basename(parse_url($video_url, PHP_URL_PATH));
+                                }
+                                if (!empty($video_id)) {
+                                    $embed_url = "https://www.youtube.com/embed/" . $video_id . "?rel=0&modestbranding=1";
+                                }
+                            }
+                            // Check if it's a Google Drive URL
+                            elseif (strpos($video_url, 'drive.google.com') !== false) {
+                                $video_type = 'drive';
+                                if (preg_match('/\/file\/d\/([a-zA-Z0-9_-]+)/', $video_url, $matches)) {
+                                    $file_id = $matches[1];
+                                    $embed_url = "https://drive.google.com/file/d/" . $file_id . "/preview";
+                                }
+                            }
+                        ?>
                     <div class="video-card">
-                        <div class="video-thumbnail">
-                            <video poster="<?php echo $video['thumbnail']; ?>" preload="none">
-                                <source src="<?php echo $video['video_path']; ?>" type="video/mp4">
-                            </video>
-                            <div class="play-overlay">
-                                <button class="play-btn" onclick="playVideo(this)">
+                        <div class="video-player-container">
+                            <?php if (!empty($embed_url)): ?>
+                                <div class="video-thumbnail-overlay" onclick="loadVideo(this, '<?php echo $embed_url; ?>')">
+                                    <img src="<?php echo $video['thumbnail']; ?>" alt="<?php echo htmlspecialchars($video['title']); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <div class="play-overlay">
+                                        <button class="play-btn">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <div class="video-error">
+                                    <p>Invalid video URL</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="video-info">
+                            <h4><?php echo htmlspecialchars($video['title']); ?></h4>
+                            <p><?php echo htmlspecialchars($video['description']); ?></p>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <!-- Default Sample Videos when no videos in database -->
+                    <div class="video-card">
+                        <div class="video-player-container">
+                            <div class="video-thumbnail-overlay" onclick="loadVideo(this, 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1')">
+                                <img src="https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Dashboard Camera Installation" style="width: 100%; height: 100%; object-fit: cover;">
+                                <div class="play-overlay">
+                                    <button class="play-btn">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="video-info">
+                            <h4>Dashboard Camera Installation Guide</h4>
+                            <p>Complete step-by-step installation process for dashboard cameras</p>
+                        </div>
+                    </div>
+                    
+                    <div class="video-card">
+                        <div class="video-player-container">
+                            <div class="video-thumbnail-overlay" onclick="loadVideo(this, 'https://www.youtube.com/embed/3JZ_D3ELwOQ?rel=0&modestbranding=1')">
+                                <img src="https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=400" alt="LED Headlight Tutorial" style="width: 100%; height: 100%; object-fit: cover;">
+                                <div class="play-overlay">
+                                    <button class="play-btn">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="video-info">
+                            <h4>LED Headlight Upgrade Tutorial</h4>
+                            <p>How to upgrade your car headlights to LED technology</p>
+                        </div>
+                    </div>
+                    
+                    <div class="video-card">
+                        <div class="video-player-container">
+                            <div class="video-thumbnail-overlay" onclick="loadVideo(this, 'https://drive.google.com/file/d/1ABCD12345EFG678/preview')">
+                                <img src="https://images.pexels.com/photos/35967/mini-cooper-auto-model-vehicle.jpg?auto=compress&cs=tinysrgb&w=400" alt="Car Air Purifier Setup" style="width: 100%; height: 100%; object-fit: cover;">
+                                <div class="play-overlay">
+                                    <button class="play-btn">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="video-info">
+                            <h4>Car Air Purifier Setup</h4>
+                            <p>Installing and configuring your car air purification system</p>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="video-modal" style="display: none;">
+        <div class="video-modal-content">
+            <span class="close-video-modal" onclick="closeVideoModal()">&times;</span>
+            <div class="video-modal-player">
+                <iframe id="videoPlayer" src="" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
                                     <i class="fas fa-play"></i>
                                 </button>
                             </div>

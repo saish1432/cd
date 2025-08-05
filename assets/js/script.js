@@ -312,24 +312,27 @@ function recordOrder(items, totalValue) {
     });
 }
 
-// Video Player
-function playVideo(button) {
-    const videoCard = button.closest('.video-card');
-    const video = videoCard.querySelector('video');
-    const overlay = button.closest('.play-overlay');
+// Video Player Functions
+function loadVideo(element, embedUrl) {
+    const modal = document.getElementById('videoModal');
+    const player = document.getElementById('videoPlayer');
     
-    if (video.paused) {
-        video.play();
-        overlay.style.display = 'none';
-        
-        video.addEventListener('pause', function() {
-            overlay.style.display = 'flex';
-        });
-        
-        video.addEventListener('ended', function() {
-            overlay.style.display = 'flex';
-        });
-    }
+    player.src = embedUrl;
+    modal.style.display = 'flex';
+    
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+}
+
+function closeVideoModal() {
+    const modal = document.getElementById('videoModal');
+    const player = document.getElementById('videoPlayer');
+    
+    player.src = '';
+    modal.style.display = 'none';
+    
+    // Restore body scroll
+    document.body.style.overflow = 'auto';
 }
 
 // Notification System

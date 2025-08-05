@@ -161,12 +161,18 @@ $videos = $pdo->query("SELECT * FROM videos ORDER BY created_at DESC")->fetchAll
                 
                 <div class="form-group">
                     <label for="video_path">Video URL *</label>
-                    <input type="url" id="video_path" name="video_path" required>
+                    <input type="url" id="video_path" name="video_path" required placeholder="YouTube or Google Drive video URL">
+                    <small style="color: #666; font-size: 0.8rem; display: block; margin-top: 5px;">
+                        Supported: YouTube (youtube.com/watch?v=... or youtu.be/...) or Google Drive share links
+                    </small>
                 </div>
                 
                 <div class="form-group">
                     <label for="thumbnail">Thumbnail URL *</label>
-                    <input type="url" id="thumbnail" name="thumbnail" required>
+                    <input type="url" id="thumbnail" name="thumbnail" required placeholder="https://example.com/thumbnail.jpg">
+                    <small style="color: #666; font-size: 0.8rem; display: block; margin-top: 5px;">
+                        Use a direct image URL for the video thumbnail
+                    </small>
                 </div>
                 
                 <div class="form-group">
